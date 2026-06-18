@@ -27,7 +27,7 @@ public class AppUserController {
 
     ) {
         try {
-            AppUserDTO response = appUserService.createAppUser(request.fullName(), request.email(), request.password(), null);
+            AppUserDTO response = appUserService.createAppUser(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
