@@ -1,6 +1,9 @@
 package com.rapitor3.fastdelivery.userservice.service;
 
+
 import com.rapitor3.fastdelivery.userservice.dto.AppUserDTO;
+import com.rapitor3.fastdelivery.userservice.dto.AuthResponse;
+import com.rapitor3.fastdelivery.userservice.dto.AuthUserRequest;
 import com.rapitor3.fastdelivery.userservice.dto.CreateUserRequest;
 import com.rapitor3.fastdelivery.userservice.model.AppUser;
 import com.rapitor3.fastdelivery.userservice.model.UserRole;
@@ -8,21 +11,21 @@ import com.rapitor3.fastdelivery.userservice.model.UserStatus;
 import com.rapitor3.fastdelivery.userservice.repository.AppUserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
-public class AppUserService {
+public class AuthService {
 
     private final AppUserRepository appUserRepository;
+    private final JwtService jwtService;
 
-    public AppUserService(AppUserRepository appUserRepository) {
+    public AuthService(AppUserRepository appUserRepository, JwtService jwtService) {
         this.appUserRepository = appUserRepository;
+        this.jwtService = jwtService;
     }
 
-    public AppUserDTO createAppUser(
-            CreateUserRequest request
-    ) {
+
+
+    public AppUserDTO register(CreateUserRequest request){
+
         if (appUserRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email already exists");
         }
@@ -31,36 +34,29 @@ public class AppUserService {
                 .fullName(request.fullName())
                 .email(request.email())
                 .passwordHash(request.password())
-                .role(request.role() == null ? UserRole.CUSTOMER : request.role())
+                .role(UserRole.CUSTOMER)
                 .status(UserStatus.ACTIVE)
                 .build();
         AppUser savedUser = appUserRepository.save(appUser);
         return toDTO(savedUser);
     }
 
-    public List<AppUserDTO> getAll() {
-        return appUserRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
-    }
+    public AuthResponse auth(AuthUserRequest request){
 
-    public AppUserDTO changeStatus(Long id, UserStatus status){
+        AppUser appUser = appUserRepository.findByEmail(request.email())
+                .orElseThrow(() -> new IllegalArgumentException("Wrong email or password"));
 
-        AppUser user = appUserRepository.findById(id).orElseThrow(() -> new IllegalArgumentException());
-        user.setStatus(status);
+        if (!request.password().equals(appUser.getPasswordHash())) {
+            throw new IllegalArgumentException("Wrong email or password");
+        }
 
-        AppUser savedUser = appUserRepository.save(user);
+        String token = jwtService.generateToken(appUser);
 
-        return toDTO(savedUser);
+        return new AuthResponse(token, "Bearer");
 
     }
 
-    public AppUserDTO getById(Long id) {
 
-        AppUser user = appUserRepository.findById(id).orElseThrow(() -> new IllegalArgumentException());
-        return toDTO(user);
-    }
 
     public AppUserDTO toDTO(AppUser appUser) {
         return new AppUserDTO(
@@ -72,5 +68,4 @@ public class AppUserService {
         );
 
     }
-
 }
