@@ -31,6 +31,10 @@ public class MenuItem {
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MenuItemType type;
+
     @Column(nullable = false)
     private String name;
 

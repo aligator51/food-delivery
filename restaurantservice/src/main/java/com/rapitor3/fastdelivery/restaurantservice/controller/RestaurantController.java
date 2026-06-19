@@ -2,6 +2,7 @@ package com.rapitor3.fastdelivery.restaurantservice.controller;
 
 import com.rapitor3.fastdelivery.restaurantservice.dto.request.ChangeRestaurantStatusRequest;
 import com.rapitor3.fastdelivery.restaurantservice.dto.request.CreateRestaurantRequest;
+import com.rapitor3.fastdelivery.restaurantservice.dto.request.UpdateRestaurantRequest;
 import com.rapitor3.fastdelivery.restaurantservice.dto.response.RestaurantDTO;
 import com.rapitor3.fastdelivery.restaurantservice.model.RestaurantStatus;
 import com.rapitor3.fastdelivery.restaurantservice.service.RestaurantService;
@@ -66,6 +67,19 @@ public class RestaurantController {
         }
 
 
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<RestaurantDTO> updateRestaurant(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateRestaurantRequest request
+    ) {
+        try {
+            RestaurantDTO response = restaurantService.updateRestaurant(id, request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 
