@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: restaurant-service
+  datasource:
+    url: jdbc:postgresql://localhost:8092/restaurantservice_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate.ddl-auto: create-drop
+    show-sql: true
+    properties.hibernate.format_sql: true
+    open-in-view: false
+
+server:
+  port: 8082

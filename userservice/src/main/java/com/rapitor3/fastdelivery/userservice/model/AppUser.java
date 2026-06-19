@@ -17,7 +17,7 @@ import java.util.List;
 public class AppUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "app_user_seq")
     @SequenceGenerator(
             name = "app_user_seq",
             sequenceName = "app_user_seq",
