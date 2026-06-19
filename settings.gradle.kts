@@ -4,3 +4,4 @@ rootProject.name = "food-delivery"
 include("userservice")
 include("gatewayservice")
 include("restaurantservice")
+include("orderservice")
