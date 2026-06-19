@@ -44,7 +44,7 @@ public class MenuItem {
     private BigDecimal  price;
 
     @Column(nullable = false)
-    private BigDecimal available;
+    private Boolean available;
 
     @Builder.Default
     @ElementCollection

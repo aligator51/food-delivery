@@ -5,14 +5,13 @@ import com.rapitor3.fastdelivery.restaurantservice.model.MenuItemType;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record CreateMenuItemRequest (
-        Long restaurantId,
+public record UpdateMenuItemRequest(
         Long categoryId,
-        MenuItemType type,
         String name,
         String description,
         BigDecimal price,
         Boolean available,
-        List<String> mediaURLs
-){
+        List<String> mediaURLs,
+        MenuItemType type
+) {
 }
