@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
@@ -11,12 +11,12 @@ spring:
         webflux:
           routes:
             - id: user-service-auth
-              uri: http://localhost:8083
+              uri: http://localhost:8081
               predicates:
                 - Path=/api/auth/**
 
             - id: user-service-users
-              uri: http://localhost:8083
+              uri: http://localhost:8081
               predicates:
                 - Path=/api/user/**
 

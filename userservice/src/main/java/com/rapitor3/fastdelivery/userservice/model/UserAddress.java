@@ -12,7 +12,7 @@ import lombok.*;
 @Builder
 public class UserAddress {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_address_seq")
     @SequenceGenerator(
             name = "user_address_seq",
             sequenceName = "user_address_seq",
@@ -32,7 +32,7 @@ public class UserAddress {
 
     private String comment;
 
-    private boolean isDefault;
+    private Boolean isDefault;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
