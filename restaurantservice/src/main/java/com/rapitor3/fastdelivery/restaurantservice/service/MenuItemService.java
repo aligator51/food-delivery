@@ -45,26 +45,30 @@ public class MenuItemService {
                 .description(request.description())
                 .price(request.price())
                 .available(request.available())
-                .mediaURLs(request.mediaURLs())
+                .mediaURLs(request.mediaURLs() == null ? List.of() : request.mediaURLs())
                 .build();
 
         MenuItem saved = menuItemRepository.save(menuItem);
         return toDTO(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<MenuItemDTO> getAllByRestaurantId(Long restaurantId) {
         return menuItemRepository.findAllByRestaurantId(restaurantId).stream().map(this::toDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<MenuItemDTO> getAvailableByRestaurantId(Long restaurantId) {
         return menuItemRepository.findAllByRestaurantIdAndAvailableTrue(restaurantId).stream().map(this::toDTO).toList();
 
     }
 
+    @Transactional(readOnly = true)
     public List<MenuItemDTO> getByCategoryId(Long restaurantId, Long categoryId) {
         return menuItemRepository.findAllByRestaurantIdAndCategoryId(restaurantId, categoryId).stream().map(this::toDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     public MenuItemDTO getById(Long restaurantId, Long menuItemId) {
         MenuItem menuItem = menuItemRepository.findById(menuItemId).orElseThrow(() -> new IllegalArgumentException());
         if (!menuItem.getRestaurantId().equals(restaurantId)) {
@@ -112,10 +116,12 @@ public class MenuItemService {
         return toDTO(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<MenuItemDTO> getByType(MenuItemType type) {
         return menuItemRepository.findAllByType(type).stream().map(this::toDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<MenuItemDTO> getAvailableByType(MenuItemType type) {
         return menuItemRepository.findAllByTypeAndAvailableTrue(type).stream().map(this::toDTO).toList();
     }
@@ -131,7 +137,10 @@ public class MenuItemService {
                 menuItem.getDescription(),
                 menuItem.getPrice(),
                 menuItem.getAvailable(),
-                menuItem.getMediaURLs()
+                menuItem.getMediaURLs() == null
+                        ? List.of()
+                        : List.copyOf(menuItem.getMediaURLs())
+
         );
     }
 }
