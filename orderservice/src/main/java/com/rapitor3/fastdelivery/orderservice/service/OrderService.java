@@ -1,5 +1,8 @@
 package com.rapitor3.fastdelivery.orderservice.service;
 
+import com.rapitor3.fastdelivery.orderservice.event.OrderCancelledEvent;
+import com.rapitor3.fastdelivery.orderservice.event.OrderCreatedEvent;
+import com.rapitor3.fastdelivery.orderservice.event.OrderStatusChangedEvent;
 import com.rapitor3.fastdelivery.orderservice.repository.OrderItemRepository;
 import com.rapitor3.fastdelivery.orderservice.repository.OrderRepository;
 import com.rapitor3.fastdelivery.orderservice.dto.request.CreateOrderItemRequest;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,10 +24,12 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderEventProducer orderEventProducer;
 
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, OrderEventProducer orderEventProduce) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.orderEventProducer = orderEventProduce;
     }
 
 
@@ -65,6 +71,17 @@ public class OrderService {
                 ).toList();
 
         List<OrderItem> savedItems = orderItemRepository.saveAll(orderItems);
+
+        orderEventProducer.sendOrderCreatedEvent(
+                new OrderCreatedEvent(
+                        savedOrder.getId(),
+                        savedOrder.getUserId(),
+                        savedOrder.getRestaurantId(),
+                        savedOrder.getStatus(),
+                        savedOrder.getTotalPrice(),
+                        LocalDateTime.now()
+                )
+        );
 
         return toDTO(savedOrder, savedItems);
 
@@ -117,16 +134,30 @@ public class OrderService {
      *
      */
     @Transactional
-    public OrderDTO changeOrderStatus(Long orderId, OrderStatus status){
+    public OrderDTO changeOrderStatus(Long orderId, OrderStatus status) {
 
         if (status == null) {
             throw new IllegalArgumentException("Status must not be null");
         }
 
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException());
+        OrderStatus old  = order.getStatus();
         order.setStatus(status);
         Order savedOrder = orderRepository.save(order);
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(savedOrder.getId());
+
+
+        orderEventProducer.sendOrderStatusChangedEvent(
+                new OrderStatusChangedEvent(
+                        savedOrder.getId(),
+                        savedOrder.getUserId(),
+                        savedOrder.getRestaurantId(),
+                        old,
+                        savedOrder.getStatus(),
+                        LocalDateTime.now()
+                )
+        );
+
 
         return toDTO(savedOrder, orderItems);
 
@@ -138,12 +169,23 @@ public class OrderService {
      *
      */
     @Transactional
-    public OrderDTO cancelOrder(Long orderId){
+    public OrderDTO cancelOrder(Long orderId) {
 
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException());
         order.setStatus(OrderStatus.CANCELLED);
         Order savedOrder = orderRepository.save(order);
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(savedOrder.getId());
+
+
+        orderEventProducer.sendOrderCancelledEvent(
+                new OrderCancelledEvent(
+                        savedOrder.getId(),
+                        savedOrder.getUserId(),
+                        savedOrder.getRestaurantId(),
+                        "no reason",
+                        savedOrder.getUpdatedAt()
+                )
+        );
 
         return toDTO(savedOrder, orderItems);
 
