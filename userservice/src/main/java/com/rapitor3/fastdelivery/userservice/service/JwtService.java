@@ -3,6 +3,7 @@ package com.rapitor3.fastdelivery.userservice.service;
 import com.rapitor3.fastdelivery.userservice.model.AppUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -12,8 +13,17 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private static final String SECRET = "super-secret-key-super-secret-key-123456";
-    private static final long EXPIRATION_MINUTES = 60;
+
+    private final String SECRET;
+    private final long EXPIRATION_MINUTES;
+
+    public JwtService(
+            @Value("${jwt.secret}") String SECRET,
+            @Value("${jwt.expiration-minutes}") long EXPIRATION_MINUTES
+    ) {
+        this.SECRET = SECRET;
+        this.EXPIRATION_MINUTES = EXPIRATION_MINUTES;
+    }
 
     Instant now = Instant.now();
 
