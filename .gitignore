@@ -29,11 +29,6 @@ replay_pid*
 out/
 
 # =========================
-# ENV
-# =========================
-.env
-
-# =========================
 # Eclipse / STS
 # =========================
 .project
@@ -53,7 +48,6 @@ desktop.ini
 # Environment / secrets
 # =========================
 .env
-.env.*
 *.env
 
 application-local.properties
